@@ -1,0 +1,40 @@
+
+
+1.Create Local Directory & Initialize Git:
+mkdir my-local-repo
+cd my-local-repo
+git init -b main
+
+2.Create Baseline File & Initial Commit:Create your initial file and commit it locally:DOSecho # My Project > README.md
+git add README.md
+git commit -m "Initial local commit"
+
+3.Connect to Remote GitHub Repository:Link your local repository to a fresh, empty GitHub repository (do not initialize it with a README or license on GitHub):DOSgit remote add origin https://github.com/YOUR-USERNAME/YOUR-REPO-NAME.git
+
+4.Enforce Push-Only Locks (Windows Compatible):
+Git for Windows runs hook scripts through its internal Bash environment.
+
+Create the pre-merge-commit hook using PowerShell to block incoming pulls cleanly:
+Set-Content -Path .git\hooks\pre-merge-commit -Value '#!/bin/sh`necho "Error: Pulling is disabled. Local repository is the sole source of truth."`nexit 1'
+
+Then create a quick Git shortcut to force-push your local state:
+git config alias.publish "push origin main --force"
+
+5.Configure VS Code Settings
+Open the folder in VS Code:
+code .
+
+Create a .vscode\settings.json file inside your project root to disable background fetching and auto-syncing:
+
+{
+  "git.postCommitCommand": "push",
+  "git.autofetch": false,
+  "git.autoStash": false,
+  "git.allowRebase": false,
+  "git.enableSmartCommit": true,
+  "git.showPushToRemote": true
+}
+
+6.Publish Your Local State
+Push your local repository outward to GitHub:
+git publish

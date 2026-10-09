@@ -1,0 +1,7 @@
+
+
+- Restrict the memory utilisation of ZFS to 75% of the 
+
+
+- Check currently assigned ZFS ARC limits
+awk '/^c_max/ {print $3/1024/1024/1024 " GB"}' /proc/spl/kstat/zfs/arcstats

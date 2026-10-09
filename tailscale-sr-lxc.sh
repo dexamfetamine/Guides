@@ -1,0 +1,60 @@
+Create a new CT (LXC) in Proxmox using Ubuntu 18.04 or similar as the base, then start up your container.
+
+For example:
+Host: Ubuntu 18.04 Standard
+Hostname: Tailscale
+Disk Size: 8GB
+Memory: 2GB (for example)
+Network:  192.168.1.25/24 (for example)
+
+---------------
+Within your LXC Console
+---------------
+Perform an update first:
+# sudo apt-get update && sudo apt-get upgrade -y
+
+You will probably need to install Curl:
+# apt install curl
+
+Then run:
+# curl -fsSL https://tailscale.com/install.sh | sh
+
+---------------
+Within your Proxmox Console
+---------------
+Modify your LXC conf for TUN; change your conf number to your LXC container number, mine is 116 for this example:
+# nano /etc/pve/lxc/116.conf
+
+Add this to the bottom of the config file:
+For proxmox versions 7 and above:
+# lxc.cgroup2.devices.allow: c 10:200 rwm
+# lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
+
+For proxmox versions 6 and below:
+# lxc.cgroup.devices.allow: c 10:200 rwm
+# lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
+
+---------------
+Within your LXC Console
+---------------
+In the console of the Tailscale LXC, enter the below:
+
+# echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.conf
+# echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.conf
+# sudo sysctl -p /etc/sysctl.conf
+
+Reboot your LXC before running the below otherwise you will get an error.
+
+Then expose your LAN as a subnet router (https://tailscale.com/kb/1019/subnets/):
+
+# sudo tailscale up --advertise-routes=192.168.1.0/24
+
+** If you're running tailscale on a Pi with PiHole as the DNS, then you need to run this command:
+# sudo tailscale up --advertise-routes=192.168.1.0/24 --accept-dns=false
+**
+
+Once running, then authorise it following the onscreen instructions.
+
+When all good, then you need to enable subnet routing via https://login.tailscale.com/admin/machines
+
+Locate your tailscale machine that's listed and click the "dots" and click "Edit route settings", then enable "Subnet routes".
