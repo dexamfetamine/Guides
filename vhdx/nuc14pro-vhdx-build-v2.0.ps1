@@ -50,14 +50,14 @@ attach vdisk
     # 2. Disk Initialization & Partition Layout
     # --------------------------------------------------------------------------
     Write-Host "2. Initializing GPT Disk Layout & Partitions on Disk $DiskNum..." -ForegroundColor Cyan
-    $Disk = Initialize-Disk -Number $DiskNum -PartitionStyle GPT -Passthru
+    Initialize-Disk -Number $DiskNum -PartitionStyle GPT -Confirm:$false | Out-Null
 
     Write-Host " Creating EFI System Partition (1GB)..." -ForegroundColor Gray
     $EfiPart = New-Partition -DiskNumber $DiskNum -Size 1GB -GptType "{c12a7328-f81f-11d2-ba4b-00a0c93ec93b}" -AssignDriveLetter
     $Script:EfiDriveLetter = $EfiPart.DriveLetter
 
     Write-Host " Creating Microsoft Reserved (MSR) Partition (16MB)..." -ForegroundColor Gray
-    $MsrPart = New-Partition -DiskNumber $DiskNum -Size 16MB -GptType "{e3c9e316-0b5c-4db8-817d-f92df00215ae}"
+    New-Partition -DiskNumber $DiskNum -Size 16MB -GptType "{e3c9e316-0b5c-4db8-817d-f92df00215ae}" | Out-Null
 
     Write-Host " Creating Primary OS Partition..." -ForegroundColor Gray
     $OSPart = New-Partition -DiskNumber $DiskNum -UseMaximumSize -GptType "{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}" -AssignDriveLetter
